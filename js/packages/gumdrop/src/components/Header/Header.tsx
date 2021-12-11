@@ -18,7 +18,7 @@ import {
 
 import { Settings } from "../Settings";
 
-export const Header = ({ narrow } : { narrow : boolean }) => {
+export const Header = ({ narrow }: { narrow: boolean }) => {
   const navs = [
     // {
     //   href: `/gumdrop/`,
@@ -55,9 +55,8 @@ export const Header = ({ narrow } : { narrow : boolean }) => {
   return (
     <Box
       sx={{
-        height: "80px",
+        height: "8rem",
         display: "flex",
-        bgcolor: "action.disabledBackground",
         overflow: "hidden",
         p: 5,
         alignItems: 'center'
@@ -65,7 +64,9 @@ export const Header = ({ narrow } : { narrow : boolean }) => {
     >
       {navs.map((nav, idx) => {
         return (
-          <Box key={idx}>{ nav.inner }</Box>
+          <Box key={idx} style={{fontSize: '1.5rem', lineHeight: '2.5rem' }}>
+            <img src={process.env.PUBLIC_URL + '/assets/logo.webp'} style={{ width: '3rem'}} />
+            {nav.inner}</Box>
         );
       })}
       {/* {narrow
@@ -136,8 +137,8 @@ export const Header = ({ narrow } : { narrow : boolean }) => {
           </Stack>
         )
       } */}
-      <Box sx={{flexGrow: 1, minWidth: "36px"}}></Box>
-      <Settings narrow={narrow}/>
+      <Box sx={{ flexGrow: 1, minWidth: "36px" }}></Box>
+      <Settings narrow={narrow} />
     </Box>
   );
 };

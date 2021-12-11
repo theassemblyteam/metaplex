@@ -28,7 +28,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
-export const Settings = ({ narrow } : { narrow : boolean }) => {
+export const Settings = ({ narrow }: { narrow: boolean }) => {
   const { disconnect, publicKey } = useWallet();
   const { setEndpoint, env, endpoint } = useConnectionConfig();
   const { setVisible } = useWalletModal();
@@ -36,6 +36,11 @@ export const Settings = ({ narrow } : { narrow : boolean }) => {
   const { setModal } = useModal();
   // const theme = useTheme();
   // const colorModeCtx = useColorMode();
+
+
+  // THE ASSEMBLY
+  // USE DEVNET
+  setEndpoint(ENDPOINTS[1].endpoint)
 
   const handleConnect = React.useCallback(() => {
     setModal(ModalEnum.WALLET);
@@ -133,7 +138,9 @@ export const Settings = ({ narrow } : { narrow : boolean }) => {
   //   </Button>
   // );
 
-  if (narrow) {
+  const disableOld = true
+
+  if (!disableOld) {
     const listHead = (
       <ListItem>
         <ListItemText
@@ -209,7 +216,7 @@ export const Settings = ({ narrow } : { narrow : boolean }) => {
       >
         {!publicKey && (
           <React.Fragment>
-            <FormControl variant="standard" style={{minWidth: "10ch"}}>
+            {!disableOld && (<FormControl variant="standard" style={{ minWidth: "10ch" }}>
               <Select
                 id="connected-env-select"
                 onChange={(e) => { setEndpoint(e.target.value); }}
@@ -219,29 +226,32 @@ export const Settings = ({ narrow } : { narrow : boolean }) => {
                   <MenuItem key={name} value={endpoint}>{name}</MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl>)}
             <Link underline="none">
               <Button
                 variant="contained"
+                color="error"
+                style={{ height: '3rem' }}
                 onClick={handleConnect}
               >
-                Connect
+                Select Wallet
               </Button>
             </Link>
           </React.Fragment>
         )}
         {publicKey && connectedActions.map((a, idx) => {
-            return (
-              <Button
-                key={idx}
-                variant="outlined"
-                onClick={a.click}
-                {...a.expandedExtra}
-              >
-                {a.inner()}
-              </Button>
-            );
-          })
+          return (
+            <Button
+              key={idx}
+              variant="outlined"
+              onClick={a.click}
+              {...a.expandedExtra}
+              data-narrow={narrow}
+            >
+              {a.inner()}
+            </Button>
+          );
+        })
         }
         {/* {themeSwitch} */}
       </Stack>

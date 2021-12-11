@@ -73,11 +73,11 @@ import {
 import { coder } from "../utils/merkleDistributor";
 
 const walletKeyOrPda = async (
-  walletKey : PublicKey,
-  handle : string,
-  pin : BN | null,
-  seed : PublicKey,
-) : Promise<[PublicKey, Array<Buffer>]> => {
+  walletKey: PublicKey,
+  handle: string,
+  pin: BN | null,
+  seed: PublicKey,
+): Promise<[PublicKey, Array<Buffer>]> => {
   if (pin === null) {
     try {
       const key = new PublicKey(handle);
@@ -95,7 +95,7 @@ const walletKeyOrPda = async (
       Buffer.from(pin.toArray("le", 4)),
     ];
 
-    const [claimantPda, ] = await PublicKey.findProgramAddress(
+    const [claimantPda,] = await PublicKey.findProgramAddress(
       [
         seeds[0],
         ...chunk(seeds[1], 32),
@@ -109,17 +109,17 @@ const walletKeyOrPda = async (
 
 
 const buildMintClaim = async (
-  connection : RPCConnection,
-  walletKey : PublicKey,
-  distributorKey : PublicKey,
-  distributorInfo : any,
-  tokenAcc : string,
-  proof : Array<Buffer>,
-  handle : string,
-  amount : number,
-  index : number,
-  pin : BN | null,
-) : Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
+  connection: RPCConnection,
+  walletKey: PublicKey,
+  distributorKey: PublicKey,
+  distributorInfo: any,
+  tokenAcc: string,
+  proof: Array<Buffer>,
+  handle: string,
+  amount: number,
+  index: number,
+  pin: BN | null,
+): Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
   let tokenAccKey: PublicKey;
   try {
     tokenAccKey = new PublicKey(tokenAcc);
@@ -141,9 +141,9 @@ const buildMintClaim = async (
   // TODO: since it's in the PDA do we need it to be in the leaf?
   const leaf = Buffer.from(
     [...new BN(index).toArray("le", 8),
-     ...secret.toBuffer(),
-     ...mint.toBuffer(),
-     ...new BN(amount).toArray("le", 8),
+    ...secret.toBuffer(),
+    ...mint.toBuffer(),
+    ...new BN(amount).toArray("le", 8),
     ]
   );
 
@@ -164,7 +164,7 @@ const buildMintClaim = async (
     GUMDROP_DISTRIBUTOR_ID
   );
 
-  const [walletTokenKey, ] = await PublicKey.findProgramAddress(
+  const [walletTokenKey,] = await PublicKey.findProgramAddress(
     [
       walletKey.toBuffer(),
       TOKEN_PROGRAM_ID.toBuffer(),
@@ -173,63 +173,63 @@ const buildMintClaim = async (
     SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
   );
 
-  const setup : Array<TransactionInstruction> = [];
+  const setup: Array<TransactionInstruction> = [];
 
   if (await connection.getAccountInfo(walletTokenKey) === null) {
     setup.push(Token.createAssociatedTokenAccountInstruction(
-        SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        mint,
-        walletTokenKey,
-        walletKey,
-        walletKey
-      ));
+      SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mint,
+      walletTokenKey,
+      walletKey,
+      walletKey
+    ));
   }
 
   const temporalSigner = distributorInfo.temporal.equals(PublicKey.default) || secret.equals(walletKey)
-      ? walletKey : distributorInfo.temporal;
+    ? walletKey : distributorInfo.temporal;
 
   const claimAirdrop = new TransactionInstruction({
-      programId: GUMDROP_DISTRIBUTOR_ID,
-      keys: [
-          { pubkey: distributorKey          , isSigner: false , isWritable: true  } ,
-          { pubkey: claimStatus             , isSigner: false , isWritable: true  } ,
-          { pubkey: tokenAccKey             , isSigner: false , isWritable: true  } ,
-          { pubkey: walletTokenKey          , isSigner: false , isWritable: true  } ,
-          { pubkey: temporalSigner          , isSigner: true  , isWritable: false } ,
-          { pubkey: walletKey               , isSigner: true  , isWritable: false } ,  // payer
-          { pubkey: SystemProgram.programId , isSigner: false , isWritable: false } ,
-          { pubkey: TOKEN_PROGRAM_ID        , isSigner: false , isWritable: false } ,
-      ],
-      data: Buffer.from([
-        ...Buffer.from(sha256.digest("global:claim")).slice(0, 8),
-        ...new BN(cbump).toArray("le", 1),
-        ...new BN(index).toArray("le", 8),
-        ...new BN(amount).toArray("le", 8),
-        ...secret.toBuffer(),
-        ...new BN(proof.length).toArray("le", 4),
-        ...Buffer.concat(proof),
-      ])
+    programId: GUMDROP_DISTRIBUTOR_ID,
+    keys: [
+      { pubkey: distributorKey, isSigner: false, isWritable: true },
+      { pubkey: claimStatus, isSigner: false, isWritable: true },
+      { pubkey: tokenAccKey, isSigner: false, isWritable: true },
+      { pubkey: walletTokenKey, isSigner: false, isWritable: true },
+      { pubkey: temporalSigner, isSigner: true, isWritable: false },
+      { pubkey: walletKey, isSigner: true, isWritable: false },  // payer
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ],
+    data: Buffer.from([
+      ...Buffer.from(sha256.digest("global:claim")).slice(0, 8),
+      ...new BN(cbump).toArray("le", 1),
+      ...new BN(index).toArray("le", 8),
+      ...new BN(amount).toArray("le", 8),
+      ...secret.toBuffer(),
+      ...new BN(proof.length).toArray("le", 4),
+      ...Buffer.concat(proof),
+    ])
   })
 
   return [[...setup, claimAirdrop], pdaSeeds, []];
 }
 
 const buildCandyClaim = async (
-  connection : RPCConnection,
-  walletKey : PublicKey,
-  distributorKey : PublicKey,
-  distributorInfo : any,
-  candyConfig : string,
-  candyUUID : string,
-  proof : Array<Buffer>,
-  handle : string,
-  amount : number,
-  index : number,
-  pin : BN | null,
-) : Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
+  connection: RPCConnection,
+  walletKey: PublicKey,
+  distributorKey: PublicKey,
+  distributorInfo: any,
+  candyConfig: string,
+  candyUUID: string,
+  proof: Array<Buffer>,
+  handle: string,
+  amount: number,
+  index: number,
+  pin: BN | null,
+): Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
 
-  let configKey : PublicKey;
+  let configKey: PublicKey;
   try {
     configKey = new PublicKey(candyConfig);
   } catch (err) {
@@ -241,9 +241,9 @@ const buildCandyClaim = async (
   // TODO: since it's in the PDA do we need it to be in the leaf?
   const leaf = Buffer.from(
     [...new BN(index).toArray("le", 8),
-     ...secret.toBuffer(),
-     ...configKey.toBuffer(),
-     ...new BN(amount).toArray("le", 8),
+    ...secret.toBuffer(),
+    ...configKey.toBuffer(),
+    ...new BN(amount).toArray("le", 8),
     ]
   );
 
@@ -276,9 +276,9 @@ const buildCandyClaim = async (
   // (aka always passes temporal check)
   // TODO: more flexible
   let temporalSigner = distributorInfo.temporal.equals(PublicKey.default) || secret.equals(walletKey)
-      ? walletKey : distributorInfo.temporal;
+    ? walletKey : distributorInfo.temporal;
 
-  const setup : Array<TransactionInstruction> = [];
+  const setup: Array<TransactionInstruction> = [];
 
   const claimCountAccount = await connection.getAccountInfo(claimCount);
   let nftsAlreadyMinted = 0;
@@ -307,11 +307,11 @@ const buildCandyClaim = async (
   }
 
 
-  const [candyMachineKey, ] = await getCandyMachineAddress(configKey, candyUUID);
+  const [candyMachineKey,] = await getCandyMachineAddress(configKey, candyUUID);
   const candyMachine = await getCandyMachine(connection, candyMachineKey);
   console.log("Candy Machine", candyMachine);
 
-  const candyMachineMints : Array<Keypair> = [];
+  const candyMachineMints: Array<Keypair> = [];
 
   const [instrs, mint] = await buildSingleCandyMint(
     connection,
@@ -340,62 +340,62 @@ const buildCandyClaim = async (
 }
 
 const buildSingleCandyMint = async (
-  connection : RPCConnection,
-  walletKey : PublicKey,
-  distributorKey : PublicKey,
-  distributorWalletKey : PublicKey,
-  claimCount : PublicKey,
-  temporalSigner : PublicKey,
-  configKey : PublicKey,
-  candyMachineKey : PublicKey,
-  candyMachineWallet : PublicKey,
-  data : Buffer,
-) : Promise<[Array<TransactionInstruction>, Keypair]> => {
+  connection: RPCConnection,
+  walletKey: PublicKey,
+  distributorKey: PublicKey,
+  distributorWalletKey: PublicKey,
+  claimCount: PublicKey,
+  temporalSigner: PublicKey,
+  configKey: PublicKey,
+  candyMachineKey: PublicKey,
+  candyMachineWallet: PublicKey,
+  data: Buffer,
+): Promise<[Array<TransactionInstruction>, Keypair]> => {
   const candyMachineMint = Keypair.generate();
   const candyMachineMetadata = await getMetadata(candyMachineMint.publicKey);
   const candyMachineMaster = await getEdition(candyMachineMint.publicKey);
 
-  const setup : Array<TransactionInstruction> = [];
+  const setup: Array<TransactionInstruction> = [];
   await createMintAndAccount(connection, walletKey, candyMachineMint.publicKey, setup);
   setup.push(new TransactionInstruction({
-      programId: GUMDROP_DISTRIBUTOR_ID,
-      keys: [
-          { pubkey: distributorKey            , isSigner: false , isWritable: true  } ,
-          { pubkey: distributorWalletKey      , isSigner: false , isWritable: true  } ,
-          { pubkey: claimCount                , isSigner: false , isWritable: true  } ,
-          { pubkey: temporalSigner            , isSigner: true  , isWritable: false } ,
-          { pubkey: walletKey                 , isSigner: true  , isWritable: false } , // payer
+    programId: GUMDROP_DISTRIBUTOR_ID,
+    keys: [
+      { pubkey: distributorKey, isSigner: false, isWritable: true },
+      { pubkey: distributorWalletKey, isSigner: false, isWritable: true },
+      { pubkey: claimCount, isSigner: false, isWritable: true },
+      { pubkey: temporalSigner, isSigner: true, isWritable: false },
+      { pubkey: walletKey, isSigner: true, isWritable: false }, // payer
 
-          { pubkey: configKey                 , isSigner: false , isWritable: true  } ,
-          { pubkey: candyMachineKey           , isSigner: false , isWritable: true  } ,
-          { pubkey: candyMachineWallet        , isSigner: false , isWritable: true  } ,
-          { pubkey: candyMachineMint.publicKey, isSigner: false , isWritable: true  } ,
-          { pubkey: candyMachineMetadata      , isSigner: false , isWritable: true  } ,
-          { pubkey: candyMachineMaster        , isSigner: false , isWritable: true  } ,
+      { pubkey: configKey, isSigner: false, isWritable: true },
+      { pubkey: candyMachineKey, isSigner: false, isWritable: true },
+      { pubkey: candyMachineWallet, isSigner: false, isWritable: true },
+      { pubkey: candyMachineMint.publicKey, isSigner: false, isWritable: true },
+      { pubkey: candyMachineMetadata, isSigner: false, isWritable: true },
+      { pubkey: candyMachineMaster, isSigner: false, isWritable: true },
 
-          { pubkey: SystemProgram.programId   , isSigner: false , isWritable: false } ,
-          { pubkey: TOKEN_PROGRAM_ID          , isSigner: false , isWritable: false } ,
-          { pubkey: TOKEN_METADATA_PROGRAM_ID , isSigner: false , isWritable: false } ,
-          { pubkey: CANDY_MACHINE_ID          , isSigner: false , isWritable: false } ,
-          { pubkey: SYSVAR_RENT_PUBKEY        , isSigner: false , isWritable: false } ,
-          { pubkey: SYSVAR_CLOCK_PUBKEY       , isSigner: false , isWritable: false } ,
-      ],
-      data: Buffer.from([
-        ...Buffer.from(sha256.digest("global:claim_candy")).slice(0, 8),
-        ...data,
-      ])
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_METADATA_PROGRAM_ID, isSigner: false, isWritable: false },
+      { pubkey: CANDY_MACHINE_ID, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+    ],
+    data: Buffer.from([
+      ...Buffer.from(sha256.digest("global:claim_candy")).slice(0, 8),
+      ...data,
+    ])
   }));
 
   return [setup, candyMachineMint];
 }
 
 const createMintAndAccount = async (
-  connection : RPCConnection,
-  walletKey : PublicKey,
-  mint : PublicKey,
-  setup : Array<TransactionInstruction>,
+  connection: RPCConnection,
+  walletKey: PublicKey,
+  mint: PublicKey,
+  setup: Array<TransactionInstruction>,
 ) => {
-  const [walletTokenKey, ] = await PublicKey.findProgramAddress(
+  const [walletTokenKey,] = await PublicKey.findProgramAddress(
     [
       walletKey.toBuffer(),
       TOKEN_PROGRAM_ID.toBuffer(),
@@ -444,20 +444,20 @@ const createMintAndAccount = async (
 }
 
 const buildEditionClaim = async (
-  connection : RPCConnection,
-  walletKey : PublicKey,
-  distributorKey : PublicKey,
-  distributorInfo : any,
-  masterMint : string,
-  edition : number,
-  proof : Array<Buffer>,
-  handle : string,
-  amount : number,
-  index : number,
-  pin : BN | null,
-) : Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
+  connection: RPCConnection,
+  walletKey: PublicKey,
+  distributorKey: PublicKey,
+  distributorInfo: any,
+  masterMint: string,
+  edition: number,
+  proof: Array<Buffer>,
+  handle: string,
+  amount: number,
+  index: number,
+  pin: BN | null,
+): Promise<[Array<TransactionInstruction>, Array<Buffer>, Array<Keypair>]> => {
 
-  let masterMintKey : PublicKey;
+  let masterMintKey: PublicKey;
   try {
     masterMintKey = new PublicKey(masterMint);
   } catch (err) {
@@ -469,10 +469,10 @@ const buildEditionClaim = async (
   // should we assert that the amount is 1?
   const leaf = Buffer.from(
     [...new BN(index).toArray("le", 8),
-     ...secret.toBuffer(),
-     ...masterMintKey.toBuffer(),
-     ...new BN(amount).toArray("le", 8),
-     ...new BN(edition).toArray("le", 8),
+    ...secret.toBuffer(),
+    ...masterMintKey.toBuffer(),
+    ...new BN(amount).toArray("le", 8),
+    ...new BN(edition).toArray("le", 8),
     ]
   );
 
@@ -497,14 +497,14 @@ const buildEditionClaim = async (
   // (aka always passes temporal check)
   // TODO: more flexible
   const temporalSigner = distributorInfo.temporal.equals(PublicKey.default) || secret.equals(walletKey)
-      ? walletKey : distributorInfo.temporal;
+    ? walletKey : distributorInfo.temporal;
 
   const claimCountAccount = await connection.getAccountInfo(claimCount);
   if (claimCountAccount !== null) {
     throw new Error(`This edition was already claimed`);
   }
 
-  const setup : Array<TransactionInstruction> = [];
+  const setup: Array<TransactionInstruction> = [];
 
   const newMint = Keypair.generate();
   const newMetadataKey = await getMetadata(newMint.publicKey);
@@ -514,7 +514,7 @@ const buildEditionClaim = async (
 
   await createMintAndAccount(connection, walletKey, newMint.publicKey, setup);
 
-  const [distributorTokenKey, ] = await PublicKey.findProgramAddress(
+  const [distributorTokenKey,] = await PublicKey.findProgramAddress(
     [
       distributorKey.toBuffer(),
       TOKEN_PROGRAM_ID.toBuffer(),
@@ -526,47 +526,47 @@ const buildEditionClaim = async (
   const editionMarkKey = await getEditionMarkerPda(masterMintKey, new BN(edition));
 
   setup.push(new TransactionInstruction({
-      programId: GUMDROP_DISTRIBUTOR_ID,
-      keys: [
-          { pubkey: distributorKey            , isSigner: false , isWritable: true  } ,
-          { pubkey: claimCount                , isSigner: false , isWritable: true  } ,
-          { pubkey: temporalSigner            , isSigner: true  , isWritable: false } ,
-          { pubkey: walletKey                 , isSigner: true  , isWritable: false } , // payer
+    programId: GUMDROP_DISTRIBUTOR_ID,
+    keys: [
+      { pubkey: distributorKey, isSigner: false, isWritable: true },
+      { pubkey: claimCount, isSigner: false, isWritable: true },
+      { pubkey: temporalSigner, isSigner: true, isWritable: false },
+      { pubkey: walletKey, isSigner: true, isWritable: false }, // payer
 
-          { pubkey: newMetadataKey            , isSigner: false , isWritable: true  } ,
-          { pubkey: newEdition                , isSigner: false , isWritable: true  } ,
-          { pubkey: masterEdition             , isSigner: false , isWritable: true  } ,
-          { pubkey: newMint.publicKey         , isSigner: false , isWritable: true  } ,
-          { pubkey: editionMarkKey            , isSigner: false , isWritable: true  } ,
-          { pubkey: walletKey                 , isSigner: true  , isWritable: false } , // `newMint` auth
-          { pubkey: distributorTokenKey       , isSigner: false , isWritable: false } ,
-          { pubkey: walletKey                 , isSigner: false , isWritable: false } , // new update auth
-          { pubkey: masterMetadataKey         , isSigner: false , isWritable: false } ,
-          { pubkey: masterMintKey             , isSigner: false , isWritable: false } ,
+      { pubkey: newMetadataKey, isSigner: false, isWritable: true },
+      { pubkey: newEdition, isSigner: false, isWritable: true },
+      { pubkey: masterEdition, isSigner: false, isWritable: true },
+      { pubkey: newMint.publicKey, isSigner: false, isWritable: true },
+      { pubkey: editionMarkKey, isSigner: false, isWritable: true },
+      { pubkey: walletKey, isSigner: true, isWritable: false }, // `newMint` auth
+      { pubkey: distributorTokenKey, isSigner: false, isWritable: false },
+      { pubkey: walletKey, isSigner: false, isWritable: false }, // new update auth
+      { pubkey: masterMetadataKey, isSigner: false, isWritable: false },
+      { pubkey: masterMintKey, isSigner: false, isWritable: false },
 
-          { pubkey: SystemProgram.programId   , isSigner: false , isWritable: false } ,
-          { pubkey: TOKEN_PROGRAM_ID          , isSigner: false , isWritable: false } ,
-          { pubkey: TOKEN_METADATA_PROGRAM_ID , isSigner: false , isWritable: false } ,
-          { pubkey: SYSVAR_RENT_PUBKEY        , isSigner: false , isWritable: false } ,
-      ],
-      data: Buffer.from([
-        ...Buffer.from(sha256.digest("global:claim_edition")).slice(0, 8),
-        ...new BN(cbump).toArray("le", 1),
-        ...new BN(index).toArray("le", 8),
-        ...new BN(amount).toArray("le", 8),
-        ...new BN(edition).toArray("le", 8),
-        ...secret.toBuffer(),
-        ...new BN(proof.length).toArray("le", 4),
-        ...Buffer.concat(proof),
-      ])
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_METADATA_PROGRAM_ID, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+    ],
+    data: Buffer.from([
+      ...Buffer.from(sha256.digest("global:claim_edition")).slice(0, 8),
+      ...new BN(cbump).toArray("le", 1),
+      ...new BN(index).toArray("le", 8),
+      ...new BN(amount).toArray("le", 8),
+      ...new BN(edition).toArray("le", 8),
+      ...secret.toBuffer(),
+      ...new BN(proof.length).toArray("le", 4),
+      ...Buffer.concat(proof),
+    ])
   }));
 
   return [setup, pdaSeeds, [newMint]];
 }
 
 const fetchDistributor = async (
-  connection : RPCConnection,
-  distributorStr : string,
+  connection: RPCConnection,
+  distributorStr: string,
 ) => {
   let key;
   try {
@@ -587,17 +587,17 @@ const fetchDistributor = async (
 };
 
 const fetchNeedsTemporalSigner = async (
-  connection : RPCConnection,
-  distributorStr : string,
-  indexStr : string,
-  claimMethod : string,
+  connection: RPCConnection,
+  distributorStr: string,
+  indexStr: string,
+  claimMethod: string,
 ) => {
   const [key, info] = await fetchDistributor(connection, distributorStr);
   if (!info.temporal.equals(GUMDROP_TEMPORAL_SIGNER)) {
     // default pubkey or program itself (distribution through wallets)
     return false;
   } else if (claimMethod === "candy") {
-    const [claimCount, ] = await PublicKey.findProgramAddress(
+    const [claimCount,] = await PublicKey.findProgramAddress(
       [
         Buffer.from("ClaimCount"),
         Buffer.from(new BN(Number(indexStr)).toArray("le", 8)),
@@ -620,7 +620,7 @@ const fetchNeedsTemporalSigner = async (
 export type ClaimProps = {};
 
 export const Claim = (
-  props : RouteComponentProps<ClaimProps>,
+  props: RouteComponentProps<ClaimProps>,
 ) => {
   const connection = useConnection();
   const wallet = useWallet();
@@ -637,10 +637,10 @@ export const Claim = (
   const params = queryString.parse(query);
   const [distributor, setDistributor] = React.useState(params.distributor as string || "");
   const [claimMethod, setClaimMethod] = React.useState(
-        params.tokenAcc ? "transfer"
-      : params.config   ? "candy"
-      : params.master   ? "edition"
-      :                   "");
+    params.tokenAcc ? "transfer"
+      : params.config ? "candy"
+        : params.master ? "edition"
+          : "");
   const [tokenAcc, setTokenAcc] = React.useState(params.tokenAcc as string || "");
   const [candyConfig, setCandyConfig] = React.useState(params.config as string || "");
   const [candyUUID, setCandyUUID] = React.useState(params.uuid as string || "");
@@ -656,16 +656,16 @@ export const Claim = (
 
   const allFieldsPopulated =
     distributor.length > 0
-    && ( claimMethod === "transfer" ? tokenAcc.length > 0
-       : claimMethod === "candy"    ? candyConfig.length > 0 && candyUUID.length > 0
-       : claimMethod === "edition"  ? masterMint.length > 0 && editionStr.length > 0
-       :                              false
-       )
+    && (claimMethod === "transfer" ? tokenAcc.length > 0
+      : claimMethod === "candy" ? candyConfig.length > 0 && candyUUID.length > 0
+        : claimMethod === "edition" ? masterMint.length > 0 && editionStr.length > 0
+          : false
+    )
     && handle.length > 0
     && amountStr.length > 0
     && indexStr.length > 0;
-    // NB: pin can be empty if handle is a public-key and we are claiming through wallets
-    // NB: proof can be empty!
+  // NB: pin can be empty if handle is a public-key and we are claiming through wallets
+  // NB: proof can be empty!
 
   const [editable, setEditable] = React.useState(!allFieldsPopulated);
 
@@ -692,7 +692,7 @@ export const Claim = (
 
   const skipAWSWorkflow = false;
 
-  const sendOTP = async (e : React.SyntheticEvent) => {
+  const sendOTP = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (!wallet.connected || wallet.publicKey === null) {
@@ -701,7 +701,7 @@ export const Claim = (
 
     const index = Number(indexStr);
     const amount = Number(amountStr);
-    let pin : BN | null = null;
+    let pin: BN | null = null;
 
     if (isNaN(amount)) {
       throw new Error(`Could not parse amount ${amountStr}`);
@@ -719,7 +719,7 @@ export const Claim = (
 
     // TODO: use cached?
     const [distributorKey, distributorInfo] =
-        await fetchDistributor(connection, distributor);
+      await fetchDistributor(connection, distributor);
 
     console.log("Distributor", distributorInfo);
 
@@ -784,9 +784,9 @@ export const Claim = (
     }
 
     const txnNeedsTemporalSigner =
-        transaction.signatures.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
+      transaction.signatures.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
     if (txnNeedsTemporalSigner && !skipAWSWorkflow) {
-      const otpQuery : { [key: string] : any } = {
+      const otpQuery: { [key: string]: any } = {
         method: "send",
         transaction: bs58.encode(transaction.serializeMessage()),
         seeds: pdaSeeds,
@@ -839,8 +839,8 @@ export const Claim = (
   };
 
   const verifyOTP = async (
-    e : React.SyntheticEvent,
-    transaction : Transaction | null,
+    e: React.SyntheticEvent,
+    transaction: Transaction | null,
   ) => {
     e.preventDefault();
 
@@ -853,7 +853,7 @@ export const Claim = (
     }
 
     const txnNeedsTemporalSigner =
-        transaction.signatures.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
+      transaction.signatures.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
     if (txnNeedsTemporalSigner && !skipAWSWorkflow) {
       // TODO: distinguish between OTP failure and transaction-error. We can try
       // again on the former but not the latter
@@ -955,32 +955,32 @@ export const Claim = (
       <Box />
 
       <Box sx={{ position: "relative" }}>
-      <Button
-        disabled={!wallet.connected || !OTPStr || loading}
-        variant="contained"
-        color="success"
-        style={{ width: "100%" }}
-        onClick={(e) => {
-          setLoading(true);
-          const wrap = async () => {
-            try {
-              await verifyOTP(e, transaction);
-              setLoading(false);
-              onClick();
-            } catch (err) {
-              notify({
-                message: "Claim failed",
-                description: `${err}`,
-              });
-              setLoading(false);
-            }
-          };
-          wrap();
-        }}
-      >
-        Claim Gumdrop
-      </Button>
-      {loading && loadingProgress()}
+        <Button
+          disabled={!wallet.connected || !OTPStr || loading}
+          variant="contained"
+          color="success"
+          style={{ width: "100%" }}
+          onClick={(e) => {
+            setLoading(true);
+            const wrap = async () => {
+              try {
+                await verifyOTP(e, transaction);
+                setLoading(false);
+                onClick();
+              } catch (err) {
+                notify({
+                  message: "Claim failed",
+                  description: `${err}`,
+                });
+                setLoading(false);
+              }
+            };
+            wrap();
+          }}
+        >
+          Claim Gumdrop
+        </Button>
+        {loading && loadingProgress()}
       </Box>
     </React.Fragment>
   );
@@ -1043,7 +1043,7 @@ export const Claim = (
     <React.Fragment >
       <Box>
         <Typography variant="h3" component="div">Claim</Typography>
-        <img width="60%"  src='/assets/coming_soon.png'></img>
+        <img width="60%" src='/assets/coming_soon.png'></img>
         <Typography variant="body1" component="div">
           {amountStr == '' ? '0' : amountStr} remaining
         </Typography>
@@ -1051,9 +1051,9 @@ export const Claim = (
           1 Sol
         </Typography>
         <Button variant="contained" color="error" size="large">Buy Now</Button>
-        <Typography sx={{mt: 2}} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: '+handle }</Typography>
+        <Typography sx={{ mt: 2 }} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: ' + handle}</Typography>
       </Box>
-      <Box sx={{display: 'none'}}>
+      <Box sx={{ display: 'none' }}>
         <Box sx={{ display: 'grid', rowGap: 1, gridTemplateRows: '1fr' }}>
           <TextField
             id="distributor-text-field"
@@ -1075,7 +1075,7 @@ export const Claim = (
               value={claimMethod}
               label="Claim Method"
               onChange={(e) => { setClaimMethod(e.target.value); }}
-              style={{textAlign: "left"}}
+              style={{ textAlign: "left" }}
               disabled={!editable}
             >
               <MenuItem value={"transfer"}>Token Transfer</MenuItem>
@@ -1129,39 +1129,39 @@ export const Claim = (
           <Box />
 
           <Box sx={{ position: "relative" }}>
-          <Button
-            disabled={!wallet.connected || !allFieldsPopulated || loading}
-            variant="contained"
-            style={{ width: "100%" }}
-            color={asyncNeedsTemporalSigner ? "primary" : "success"}
-            onClick={(e) => {
-              setLoading(true);
-              const wrap = async () => {
-                try {
-                  const needsTemporalSigner = await fetchNeedsTemporalSigner(
+            <Button
+              disabled={!wallet.connected || !allFieldsPopulated || loading}
+              variant="contained"
+              style={{ width: "100%" }}
+              color={asyncNeedsTemporalSigner ? "primary" : "success"}
+              onClick={(e) => {
+                setLoading(true);
+                const wrap = async () => {
+                  try {
+                    const needsTemporalSigner = await fetchNeedsTemporalSigner(
                       connection, distributor, indexStr, claimMethod);
-                  const transaction = await sendOTP(e);
-                  if (!needsTemporalSigner) {
-                    await verifyOTP(e, transaction);
-                  } else {
-                    setTransaction(transaction);
+                    const transaction = await sendOTP(e);
+                    if (!needsTemporalSigner) {
+                      await verifyOTP(e, transaction);
+                    } else {
+                      setTransaction(transaction);
+                    }
+                    setLoading(false);
+                    onClick();
+                  } catch (err) {
+                    notify({
+                      message: "Claim failed",
+                      description: `${err}`,
+                    });
+                    setLoading(false);
                   }
-                  setLoading(false);
-                  onClick();
-                } catch (err) {
-                  notify({
-                    message: "Claim failed",
-                    description: `${err}`,
-                  });
-                  setLoading(false);
-                }
-              };
-              wrap();
-            }}
-          >
-            {asyncNeedsTemporalSigner ? "Next" : "Claim Gumdrop"}
-          </Button>
-          {loading && loadingProgress()}
+                };
+                wrap();
+              }}
+            >
+              {asyncNeedsTemporalSigner ? "Next" : "Claim Gumdrop"}
+            </Button>
+            {loading && loadingProgress()}
           </Box>
         </Box>
       </Box>
@@ -1173,7 +1173,7 @@ export const Claim = (
   ];
   if (asyncNeedsTemporalSigner) {
     steps.push(
-    { name: "Verify OTP"    , inner: verifyOTPC     }
+      { name: "Verify OTP", inner: verifyOTPC }
     );
   }
 
@@ -1198,7 +1198,7 @@ export const Claim = (
 
   const stepper = (
     <React.Fragment>
-      <Stepper sx={{display: "none"}} activeStep={stepToUse}>
+      <Stepper sx={{ display: "none" }} activeStep={stepToUse}>
         {steps.map(s => {
           return (
             <Step key={s.name}>
