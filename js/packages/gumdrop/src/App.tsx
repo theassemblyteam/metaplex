@@ -4,6 +4,7 @@ import {
   Link,
   Route,
   Switch,
+  Redirect
 } from "react-router-dom";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -22,6 +23,7 @@ import { Header } from "./components/Header/Header";
 import { Claim } from "./components/Claim";
 import { Close } from "./components/Close";
 import { Create } from "./components/Create";
+import { Footer } from "./components/Footer/Footer";
 
 const WHITESPACE = "\u00A0";
 
@@ -204,12 +206,12 @@ function App() {
 
   const theme = React.useMemo(
     () => {
-      let mode;
-      if (colorModeCtx.mode === "dark" || !colorModeCtx.mode) {
-        mode = "dark";
-      } else {
-        mode = "light";
-      }
+      const mode = "light";
+      // if (colorModeCtx.mode === "dark" || !colorModeCtx.mode) {
+      //   mode = "dark";
+      // } else {
+      //   mode = "light";
+      // }
 
       return createTheme({
         palette: {
@@ -238,13 +240,23 @@ function App() {
           >
             <Box height="40px" />
             <Switch>
-              <Route path="/gumdrop/create" component={Create} />
-              <Route path="/gumdrop/claim" component={Claim} />
-              <Route path="/gumdrop/close" component={Close} />
-              <Route path="/gumdrop/" component={About} />
+              <Route exact path="/gumdrop/create" component={Create}>
+                <Redirect to="/claim" />
+              </Route>
+              <Route path="/gumdrop/close" component={Close}>
+                <Redirect to="/claim" />
+              </Route>
+              <Route exact path="/gumdrop/" component={About}>
+                <Redirect to="/claim" />
+              </Route>
+              <Route path="/claim" component={Claim} />
             </Switch>
+            <Route exact path="*">
+              <Redirect to="/claim" />
+            </Route>
             <Box height="80px" />
           </Box>
+          <Footer />
         </BrowserRouter>
       </ThemeProvider>
     </div>
