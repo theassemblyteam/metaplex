@@ -1050,82 +1050,84 @@ export const Claim = (
         <Typography variant="h4" color="error" component="div">
           1 Sol
         </Typography>
-        <Button variant="contained" color="error" size="large">Buy Now</Button>
+        {/* <Button variant="contained" color="error" size="large">Buy Now</Button> */}
         <Typography sx={{ mt: 2 }} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: ' + handle}</Typography>
       </Box>
-      <Box sx={{ display: 'none' }}>
+      <Box>
         <Box sx={{ display: 'grid', rowGap: 1, gridTemplateRows: '1fr' }}>
-          <TextField
-            id="distributor-text-field"
-            label="Distributor"
-            value={distributor}
-            onChange={(e) => setDistributor(e.target.value)}
-            disabled={!editable}
-          />
-          <FormControl fullWidth>
-            <InputLabel
-              id="claim-method-label"
+          <Box sx={{ display: 'none ' }}>
+            <TextField
+              id="distributor-text-field"
+              label="Distributor"
+              value={distributor}
+              onChange={(e) => setDistributor(e.target.value)}
               disabled={!editable}
-            >
-              Claim Method
-            </InputLabel>
-            <Select
-              labelId="claim-method-label"
-              id="claim-method-select"
-              value={claimMethod}
-              label="Claim Method"
-              onChange={(e) => { setClaimMethod(e.target.value); }}
-              style={{ textAlign: "left" }}
+            />
+            <FormControl fullWidth>
+              <InputLabel
+                id="claim-method-label"
+                disabled={!editable}
+              >
+                Claim Method
+              </InputLabel>
+              <Select
+                labelId="claim-method-label"
+                id="claim-method-select"
+                value={claimMethod}
+                label="Claim Method"
+                onChange={(e) => { setClaimMethod(e.target.value); }}
+                style={{ textAlign: "left" }}
+                disabled={!editable}
+              >
+                <MenuItem value={"transfer"}>Token Transfer</MenuItem>
+                <MenuItem value={"candy"}>Candy Machine</MenuItem>
+                <MenuItem value={"edition"}>Limited Edition</MenuItem>
+              </Select>
+            </FormControl>
+            {claimMethod !== "" && claimData(claimMethod)}
+            {claimMethod !== "edition" && <TextField
+              id="amount-text-field"
+              label="Amount"
+              value={amountStr}
+              onChange={(e) => setAmount(e.target.value)}
               disabled={!editable}
+            />}
+            <TextField
+              id="handle-text-field"
+              label="Handle"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              disabled={!editable}
+            />
+            <TextField
+              id="index-text-field"
+              label="Index"
+              value={indexStr}
+              onChange={(e) => setIndex(e.target.value)}
+              disabled={!editable}
+            />
+            {params.pin !== "NA" && <TextField
+              id="pin-text-field"
+              label="Pin"
+              value={pinStr}
+              onChange={(e) => setPin(e.target.value)}
+              disabled={!editable}
+            />}
+            <TextField
+              id="proof-text-field"
+              label="Proof"
+              multiline
+              value={proofStr}
+              onChange={(e) => setProof(e.target.value)}
+              disabled={!editable}
+            />
+            <Button
+              color="info"
+              onClick={() => setEditable(!editable)}
             >
-              <MenuItem value={"transfer"}>Token Transfer</MenuItem>
-              <MenuItem value={"candy"}>Candy Machine</MenuItem>
-              <MenuItem value={"edition"}>Limited Edition</MenuItem>
-            </Select>
-          </FormControl>
-          {claimMethod !== "" && claimData(claimMethod)}
-          {claimMethod !== "edition" && <TextField
-            id="amount-text-field"
-            label="Amount"
-            value={amountStr}
-            onChange={(e) => setAmount(e.target.value)}
-            disabled={!editable}
-          />}
-          <TextField
-            id="handle-text-field"
-            label="Handle"
-            value={handle}
-            onChange={(e) => setHandle(e.target.value)}
-            disabled={!editable}
-          />
-          <TextField
-            id="index-text-field"
-            label="Index"
-            value={indexStr}
-            onChange={(e) => setIndex(e.target.value)}
-            disabled={!editable}
-          />
-          {params.pin !== "NA" && <TextField
-            id="pin-text-field"
-            label="Pin"
-            value={pinStr}
-            onChange={(e) => setPin(e.target.value)}
-            disabled={!editable}
-          />}
-          <TextField
-            id="proof-text-field"
-            label="Proof"
-            multiline
-            value={proofStr}
-            onChange={(e) => setProof(e.target.value)}
-            disabled={!editable}
-          />
-          <Button
-            color="info"
-            onClick={() => setEditable(!editable)}
-          >
-            {!editable ? "Edit Claim" : "Stop Editing"}
-          </Button>
+              {!editable ? "Edit Claim" : "Stop Editing"}
+            </Button>
+          </Box>
           <Box />
 
           <Box sx={{ position: "relative" }}>
