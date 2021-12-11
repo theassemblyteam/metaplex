@@ -16,6 +16,7 @@ import {
   StepLabel,
   Stepper,
   TextField,
+  Typography
 } from "@mui/material";
 
 import {
@@ -1039,114 +1040,130 @@ export const Claim = (
   };
 
   const populateClaimC = (onClick) => (
-    <React.Fragment>
-      <TextField
-        id="distributor-text-field"
-        label="Distributor"
-        value={distributor}
-        onChange={(e) => setDistributor(e.target.value)}
-        disabled={!editable}
-      />
-      <FormControl fullWidth>
-        <InputLabel
-          id="claim-method-label"
-          disabled={!editable}
-        >
-          Claim Method
-        </InputLabel>
-        <Select
-          labelId="claim-method-label"
-          id="claim-method-select"
-          value={claimMethod}
-          label="Claim Method"
-          onChange={(e) => { setClaimMethod(e.target.value); }}
-          style={{textAlign: "left"}}
-          disabled={!editable}
-        >
-          <MenuItem value={"transfer"}>Token Transfer</MenuItem>
-          <MenuItem value={"candy"}>Candy Machine</MenuItem>
-          <MenuItem value={"edition"}>Limited Edition</MenuItem>
-        </Select>
-      </FormControl>
-      {claimMethod !== "" && claimData(claimMethod)}
-      {claimMethod !== "edition" && <TextField
-        id="amount-text-field"
-        label="Amount"
-        value={amountStr}
-        onChange={(e) => setAmount(e.target.value)}
-        disabled={!editable}
-      />}
-      <TextField
-        id="handle-text-field"
-        label="Handle"
-        value={handle}
-        onChange={(e) => setHandle(e.target.value)}
-        disabled={!editable}
-      />
-      <TextField
-        id="index-text-field"
-        label="Index"
-        value={indexStr}
-        onChange={(e) => setIndex(e.target.value)}
-        disabled={!editable}
-      />
-      {params.pin !== "NA" && <TextField
-        id="pin-text-field"
-        label="Pin"
-        value={pinStr}
-        onChange={(e) => setPin(e.target.value)}
-        disabled={!editable}
-      />}
-      <TextField
-        id="proof-text-field"
-        label="Proof"
-        multiline
-        value={proofStr}
-        onChange={(e) => setProof(e.target.value)}
-        disabled={!editable}
-      />
-      <Button
-        color="info"
-        onClick={() => setEditable(!editable)}
-      >
-        {!editable ? "Edit Claim" : "Stop Editing"}
-      </Button>
-      <Box />
+    <React.Fragment >
+      <Box>
+        <Typography variant="h3" component="div">Claim</Typography>
+        <img width="60%"  src='/assets/coming_soon.png'></img>
+        <Typography variant="body1" component="div">
+          {amountStr == '' ? '0' : amountStr} remaining
+        </Typography>
+        <Typography variant="h4" color="error" component="div">
+          1 Sol
+        </Typography>
+        <Button variant="contained" color="error" size="large">Buy Now</Button>
+        <Typography sx={{mt: 2}} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: '+handle }</Typography>
+      </Box>
+      <Box sx={{display: 'none'}}>
+        <Box sx={{ display: 'grid', rowGap: 1, gridTemplateRows: '1fr' }}>
+          <TextField
+            id="distributor-text-field"
+            label="Distributor"
+            value={distributor}
+            onChange={(e) => setDistributor(e.target.value)}
+            disabled={!editable}
+          />
+          <FormControl fullWidth>
+            <InputLabel
+              id="claim-method-label"
+              disabled={!editable}
+            >
+              Claim Method
+            </InputLabel>
+            <Select
+              labelId="claim-method-label"
+              id="claim-method-select"
+              value={claimMethod}
+              label="Claim Method"
+              onChange={(e) => { setClaimMethod(e.target.value); }}
+              style={{textAlign: "left"}}
+              disabled={!editable}
+            >
+              <MenuItem value={"transfer"}>Token Transfer</MenuItem>
+              <MenuItem value={"candy"}>Candy Machine</MenuItem>
+              <MenuItem value={"edition"}>Limited Edition</MenuItem>
+            </Select>
+          </FormControl>
+          {claimMethod !== "" && claimData(claimMethod)}
+          {claimMethod !== "edition" && <TextField
+            id="amount-text-field"
+            label="Amount"
+            value={amountStr}
+            onChange={(e) => setAmount(e.target.value)}
+            disabled={!editable}
+          />}
+          <TextField
+            id="handle-text-field"
+            label="Handle"
+            value={handle}
+            onChange={(e) => setHandle(e.target.value)}
+            disabled={!editable}
+          />
+          <TextField
+            id="index-text-field"
+            label="Index"
+            value={indexStr}
+            onChange={(e) => setIndex(e.target.value)}
+            disabled={!editable}
+          />
+          {params.pin !== "NA" && <TextField
+            id="pin-text-field"
+            label="Pin"
+            value={pinStr}
+            onChange={(e) => setPin(e.target.value)}
+            disabled={!editable}
+          />}
+          <TextField
+            id="proof-text-field"
+            label="Proof"
+            multiline
+            value={proofStr}
+            onChange={(e) => setProof(e.target.value)}
+            disabled={!editable}
+          />
+          <Button
+            color="info"
+            onClick={() => setEditable(!editable)}
+          >
+            {!editable ? "Edit Claim" : "Stop Editing"}
+          </Button>
+          <Box />
 
-      <Box sx={{ position: "relative" }}>
-      <Button
-        disabled={!wallet.connected || !allFieldsPopulated || loading}
-        variant="contained"
-        style={{ width: "100%" }}
-        color={asyncNeedsTemporalSigner ? "primary" : "success"}
-        onClick={(e) => {
-          setLoading(true);
-          const wrap = async () => {
-            try {
-              const needsTemporalSigner = await fetchNeedsTemporalSigner(
-                  connection, distributor, indexStr, claimMethod);
-              const transaction = await sendOTP(e);
-              if (!needsTemporalSigner) {
-                await verifyOTP(e, transaction);
-              } else {
-                setTransaction(transaction);
-              }
-              setLoading(false);
-              onClick();
-            } catch (err) {
-              notify({
-                message: "Claim failed",
-                description: `${err}`,
-              });
-              setLoading(false);
-            }
-          };
-          wrap();
-        }}
-      >
-        {asyncNeedsTemporalSigner ? "Next" : "Claim Gumdrop"}
-      </Button>
-      {loading && loadingProgress()}
+          <Box sx={{ position: "relative" }}>
+          <Button
+            disabled={!wallet.connected || !allFieldsPopulated || loading}
+            variant="contained"
+            style={{ width: "100%" }}
+            color={asyncNeedsTemporalSigner ? "primary" : "success"}
+            onClick={(e) => {
+              setLoading(true);
+              const wrap = async () => {
+                try {
+                  const needsTemporalSigner = await fetchNeedsTemporalSigner(
+                      connection, distributor, indexStr, claimMethod);
+                  const transaction = await sendOTP(e);
+                  if (!needsTemporalSigner) {
+                    await verifyOTP(e, transaction);
+                  } else {
+                    setTransaction(transaction);
+                  }
+                  setLoading(false);
+                  onClick();
+                } catch (err) {
+                  notify({
+                    message: "Claim failed",
+                    description: `${err}`,
+                  });
+                  setLoading(false);
+                }
+              };
+              wrap();
+            }}
+          >
+            {asyncNeedsTemporalSigner ? "Next" : "Claim Gumdrop"}
+          </Button>
+          {loading && loadingProgress()}
+          </Box>
+        </Box>
       </Box>
     </React.Fragment>
   );
@@ -1181,7 +1198,7 @@ export const Claim = (
 
   const stepper = (
     <React.Fragment>
-      <Stepper activeStep={stepToUse}>
+      <Stepper sx={{display: "none"}} activeStep={stepToUse}>
         {steps.map(s => {
           return (
             <Step key={s.name}>

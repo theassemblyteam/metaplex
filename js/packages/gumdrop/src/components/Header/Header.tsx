@@ -1,64 +1,74 @@
 import React from "react";
-import {
-  Link,
-} from "react-router-dom";
+// import {
+//   Link,
+// } from "react-router-dom";
 import {
   Box,
-  Button,
-  Divider,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Stack,
+  // Button,
+  // Divider,
+  // Drawer,
+  // List,
+  // ListItem,
+  // ListItemButton,
+  // ListItemText,
+  // Stack,
 } from "@mui/material";
-import HomeIcon from '@mui/icons-material/Home';
-import MenuIcon from '@mui/icons-material/Menu';
+// import HomeIcon from '@mui/icons-material/Home';
+// import MenuIcon from '@mui/icons-material/Menu';
 
 import { Settings } from "../Settings";
 
 export const Header = ({ narrow } : { narrow : boolean }) => {
   const navs = [
+    // {
+    //   href: `/gumdrop/`,
+    //   innerNarrow: "About",
+    //   inner: <HomeIcon />,
+    // },
+    // {
+    //   href: `/gumdrop/create`,
+    //   inner: "Create",
+    // },
+    // {
+    //   href: `/claim`,
+    //   inner: "Claim",
+    // },
+    // {
+    //   href: `/gumdrop/close`,
+    //   inner: "Close",
+    // },
     {
-      href: `/gumdrop/`,
-      innerNarrow: "About",
-      inner: <HomeIcon />,
-    },
-    {
-      href: `/gumdrop/create`,
-      inner: "Create",
-    },
-    {
-      href: `/gumdrop/claim`,
-      inner: "Claim",
-    },
-    {
-      href: `/gumdrop/close`,
-      inner: "Close",
-    },
+      inner: "The Assembly"
+    }
   ];
 
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  // const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+  // const toggleDrawer = (open) => (event) => {
+  //   if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+  //     return;
+  //   }
 
-    setDrawerOpen(open);
-  };
+  //   setDrawerOpen(open);
+  // };
 
   return (
     <Box
       sx={{
-        height: "52px",
+        height: "80px",
         display: "flex",
         bgcolor: "action.disabledBackground",
-        overflow: "auto",
+        overflow: "hidden",
+        p: 5,
+        alignItems: 'center'
       }}
     >
-      {narrow
+      {navs.map((nav, idx) => {
+        return (
+          <Box key={idx}>{ nav.inner }</Box>
+        );
+      })}
+      {/* {narrow
         ? (
           <React.Fragment>
             <Button onClick={toggleDrawer(true)}>
@@ -88,11 +98,14 @@ export const Header = ({ narrow } : { narrow : boolean }) => {
                   <Divider />
                   {navs.map((nav, idx) => {
                     return (
-                      <Link to={nav.href} key={idx} style={{color: "inherit"}}>
-                        <ListItemButton>
-                          {nav.innerNarrow || nav.inner}
-                        </ListItemButton>
-                      </Link>
+                      // <Link to={nav.href} key={idx} style={{color: "inherit"}}>
+                      //   <ListItemButton>
+                      //     {nav.innerNarrow || nav.inner}
+                      //   </ListItemButton>
+                      // </Link>
+                      <ListItem key={idx}>
+                        {nav.inner}
+                      </ListItem>
                     );
                   })}
                 </List>
@@ -122,7 +135,7 @@ export const Header = ({ narrow } : { narrow : boolean }) => {
             })}
           </Stack>
         )
-      }
+      } */}
       <Box sx={{flexGrow: 1, minWidth: "36px"}}></Box>
       <Settings narrow={narrow}/>
     </Box>
