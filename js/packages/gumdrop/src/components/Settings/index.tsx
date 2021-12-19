@@ -40,7 +40,7 @@ export const Settings = ({ narrow }: { narrow: boolean }) => {
 
   // THE ASSEMBLY
   // USE DEVNET
-  setEndpoint(ENDPOINTS[1].endpoint)
+  setEndpoint(ENDPOINTS[0].endpoint)
 
   const handleConnect = React.useCallback(() => {
     setModal(ModalEnum.WALLET);

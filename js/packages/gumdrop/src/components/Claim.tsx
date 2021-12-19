@@ -978,7 +978,7 @@ export const Claim = (
             wrap();
           }}
         >
-          Claim Gumdrop
+          Mint Now
         </Button>
         {loading && loadingProgress()}
       </Box>
@@ -1161,7 +1161,7 @@ export const Claim = (
                 wrap();
               }}
             >
-              {asyncNeedsTemporalSigner ? "Next" : "Claim Gumdrop"}
+              {asyncNeedsTemporalSigner ? "Next" : "Mint Now"}
             </Button>
             {loading && loadingProgress()}
           </Box>
