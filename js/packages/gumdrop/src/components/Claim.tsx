@@ -1043,12 +1043,19 @@ export const Claim = (
     <React.Fragment >
       <Box>
         <Typography variant="h3" component="div">Claim</Typography>
-        <img width="60%" src='/assets/coming_soon.png'></img>
+        <video
+          src="/assets/avatar_video.mp4"
+          autoPlay={true}
+          loop={true}
+          width={'60%'}
+          style={{height: '16rem'}}
+        ></video>
         <Typography variant="body1" component="div">
           {amountStr == '' ? '0' : amountStr} remaining
         </Typography>
         <Typography variant="h4" color="error" component="div">
-          1 Sol
+          1.5 Sol<br/>
+          <div style={{fontSize: '12px',lineHeight:'12px'}}>+<br/>Processing Fee</div>
         </Typography>
         {/* <Button variant="contained" color="error" size="large">Buy Now</Button> */}
         <Typography sx={{ mt: 2 }} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: ' + handle}</Typography>
