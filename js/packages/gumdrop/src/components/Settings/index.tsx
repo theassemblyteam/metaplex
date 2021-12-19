@@ -39,7 +39,7 @@ export const Settings = ({ narrow }: { narrow: boolean }) => {
 
 
   // THE ASSEMBLY
-  // USE DEVNET
+  // USE MAINNET
   setEndpoint(ENDPOINTS[0].endpoint)
 
   const handleConnect = React.useCallback(() => {

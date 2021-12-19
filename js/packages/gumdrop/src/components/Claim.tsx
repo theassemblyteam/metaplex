@@ -648,6 +648,7 @@ export const Claim = (
   const [editionStr, setEditionStr] = React.useState(params.edition as string || "");
   const [handle, setHandle] = React.useState(params.handle as string || "");
   const [amountStr, setAmount] = React.useState(params.amount as string || "");
+  const [leftToMint, setLeftToMint] = React.useState(0)
   const [indexStr, setIndex] = React.useState(params.index as string || "");
   const [pinStr, setPin] = React.useState(params.pin as string || "");
   const [proofStr, setProof] = React.useState(params.proof as string || "");
@@ -679,6 +680,10 @@ export const Claim = (
   React.useEffect(() => {
     const wrap = async () => {
       try {
+        const alreadyMinted = await getAlreadyMinted(connection, distributor, indexStr)
+
+        setLeftToMint(Number(amountStr) - alreadyMinted)
+
         setNeedsTemporalSigner(await fetchNeedsTemporalSigner(
           connection, distributor, indexStr, claimMethod));
       } catch {
@@ -838,6 +843,34 @@ export const Claim = (
     return transaction;
   };
 
+  const getAlreadyMinted = async (connection, distributor, indexStr) => {
+    const [distributorKey] =
+      await fetchDistributor(connection, distributor);
+
+    const [claimCount] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from("ClaimCount"),
+        Buffer.from(new BN(Number(indexStr)).toArray("le", 8)),
+        distributorKey.toBuffer(),
+      ],
+      GUMDROP_DISTRIBUTOR_ID
+    );
+
+    const claimCountAccount = await connection.getAccountInfo(claimCount);
+    let nftsAlreadyMinted = 0;
+
+    if (claimCountAccount === null) {
+      // nothing claimed yet
+    } else {
+      // TODO: subtract already minted?...
+      const claimAccountInfo = coder.accounts.decode(
+        "ClaimCount", claimCountAccount.data);
+      nftsAlreadyMinted = claimAccountInfo.count;
+    }
+
+    return nftsAlreadyMinted
+  }
+
   const verifyOTP = async (
     e: React.SyntheticEvent,
     transaction: Transaction | null,
@@ -921,8 +954,15 @@ export const Claim = (
         </HyperLink>
       ),
     });
+
+    
+
     setTransaction(null);
     try {
+      const alreadyMinted = await getAlreadyMinted(connection, distributor, indexStr)
+
+      setLeftToMint(Number(amountStr) - alreadyMinted)
+
       setNeedsTemporalSigner(await fetchNeedsTemporalSigner(
         connection, distributor, indexStr, claimMethod));
     } catch {
@@ -1051,7 +1091,7 @@ export const Claim = (
           style={{height: '16rem'}}
         ></video>
         <Typography variant="body1" component="div">
-          {amountStr == '' ? '0' : amountStr} remaining
+          {leftToMint ?? 0} remaining
         </Typography>
         <Typography variant="h4" color="error" component="div">
           1.5 Sol<br/>
