@@ -1082,23 +1082,35 @@ export const Claim = (
   const populateClaimC = (onClick) => (
     <React.Fragment >
       <Box>
-        <Typography variant="h3" component="div">Claim</Typography>
-        <video
-          src="/assets/avatar_video.mp4"
-          autoPlay={true}
-          loop={true}
-          width={'60%'}
-          style={{height: '16rem'}}
-        ></video>
-        <Typography variant="body1" component="div">
-          {leftToMint ?? 0} remaining
-        </Typography>
-        <Typography variant="h4" color="error" component="div">
-          1.5 Sol<br/>
-          <div style={{fontSize: '12px',lineHeight:'12px'}}>+<br/>Processing Fee</div>
-        </Typography>
-        {/* <Button variant="contained" color="error" size="large">Buy Now</Button> */}
-        <Typography sx={{ mt: 2 }} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: ' + handle}</Typography>
+        <Box sx={{
+          width: {
+            sm: 360,
+          },
+          mx: {
+            sm: 'auto',
+          },
+          py: 3,
+          boxShadow: '2px 2px 5px black, 0 0 100px #8f5922 inset',
+          clipPath: 'polygon(0% 100%,13% 100%,18% 96%,20% 100%,47% 100%,60% 98%,65% 100%,75% 100%,92% 100%,100% 100%,100% 84%,98% 78%,98% 74%,100% 70%,99% 61%,100% 54%,100% 20%,97% 17%,100% 12%,100% 0%,82% 0%,80% 6%,78% 0%,54% 0%,33% 0%,27% 2%,20% 3%,12% 1%,8% 0%,0% 0%,0% 19%,3% 25%,0% 29%,1% 50%,0% 60%,3% 68%,0% 77%,0% 86%,2% 91%,0% 96%)'
+          }}>
+          <Typography variant="h3" component="div">Claim</Typography>
+          <video
+            src="/assets/avatar_video.mp4"
+            autoPlay={true}
+            loop={true}
+            width={'60%'}
+            style={{height: '16rem'}}
+          ></video>
+          <Typography variant="body1" component="div">
+            {leftToMint ?? 0} remaining
+          </Typography>
+          <Typography variant="h4" color="error" component="div">
+            1.5 Sol<br/>
+            <div style={{fontSize: '12px',lineHeight:'12px'}}>+<br/>Processing Fee</div>
+          </Typography>
+          {/* <Button variant="contained" color="error" size="large">Buy Now</Button> */}
+          <Typography sx={{ mt: 2 }} >{handle == '' ? 'Connect Your Wallet' : 'For wallet address: ' + handle}</Typography>
+        </Box>
       </Box>
       <Box>
         <Box sx={{ display: 'grid', rowGap: 1, gridTemplateRows: '1fr' }}>

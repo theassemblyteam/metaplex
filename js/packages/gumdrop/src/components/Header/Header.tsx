@@ -57,9 +57,12 @@ export const Header = ({ narrow }: { narrow: boolean }) => {
       sx={{
         height: "8rem",
         display: "flex",
-        overflow: "hidden",
+        overflow: 'hidden',
         p: 5,
-        alignItems: 'center'
+        alignItems: 'center',
+        boxShadow: {
+          md: '0px 10px 5px 5px rgba(0,0,0,0.12)'
+        }
       }}
     >
       {navs.map((nav, idx) => {
