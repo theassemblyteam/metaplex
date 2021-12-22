@@ -30,7 +30,7 @@ export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
 export const ENDPOINTS = [
   {
     name: "mainnet-beta" as ENV,
-    endpoint: "https://api.mainnet-beta.solana.com",
+    endpoint: "https://polished-dawn-dream.solana-mainnet.quiknode.pro/bd827f77830fc8f51b3e7ff3714d780ccc0c21a7/",
     ChainId: ChainId.MainnetBeta,
   },
   {
