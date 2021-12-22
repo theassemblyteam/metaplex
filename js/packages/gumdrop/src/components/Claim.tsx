@@ -934,7 +934,7 @@ export const Claim = (
     }
 
     const txnNeedsTemporalSigner =
-      transaction.claim.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
+      transaction.claim.signatures.some(s => s.publicKey.equals(GUMDROP_TEMPORAL_SIGNER));
     if (txnNeedsTemporalSigner && !skipAWSWorkflow) {
       // TODO: distinguish between OTP failure and transaction-error. We can try
       // again on the former but not the latter
